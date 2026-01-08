@@ -939,7 +939,7 @@ if (IS_MIXED_SESSION && player?.gender) {
   };
 
   btn.addEventListener('click', handleTap);
-  btn.addEventListener('touchstart', handleTap);
+  //btn.addEventListener('touchstart', handleTap);
 
   return btn;
 }
@@ -1016,7 +1016,7 @@ function makeRestButton(player, data, index) {
   };
 
   btn.addEventListener('click', handleTap);
-  btn.addEventListener('touchstart', handleTap);
+  //btn.addEventListener('touchstart', handleTap);
 
   return btn;
 }
