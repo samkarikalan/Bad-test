@@ -555,22 +555,18 @@ function showRound(index) {
   const data = allRounds[index];
   if (!data) return;
 
-  // ✅ Update round title
   const roundTitle = document.getElementById("roundTitle");
   roundTitle.className = "roundTitle";
   roundTitle.innerText =
     translations[currentLang].nround + " " + data.round;
 
-  // ✅ Resting players
   let restDiv = null;
   if (data.resting && data.resting.length !== 0) {
     restDiv = renderRestingPlayers(data, index);
   }
 
-  // ✅ Games (courts)
   const gamesDiv = renderGames(data, index);
 
-  // ✅ Wrapper (latest / played)
   const wrapper = document.createElement('div');
   const isLatest = index === allRounds.length - 1;
   wrapper.className = isLatest ? 'latest-round' : 'played-round';
@@ -583,43 +579,9 @@ function showRound(index) {
 
   resultsDiv.append(wrapper);
 
-  // ✅ Navigation
   document.getElementById('prevBtn').disabled = index === 0;
   document.getElementById('nextBtn').disabled = false;
 }
-
-function showRoundold(index) {
-  clearPreviousRound();
-  const resultsDiv = document.getElementById('game-results');
-  resultsDiv.innerHTML = '';
-  const data = allRounds[index];
-  if (!data) return;
-  // ✅ Update round title
-  const roundTitle = document.getElementById("roundTitle");
-  roundTitle.className = "roundTitle";
-  roundTitle.innerText = translations[currentLang].nround + " " + data.round;
-  // ✅ Create sections safely
-  let restDiv = null;
-  if (data.resting && data.resting.length !== 0) {
-    restDiv = renderRestingPlayers(data, index);
-  }
-  const gamesDiv = renderGames(data, index);
-  // ✅ Wrap everything in a container to distinguish latest vs played
-  const wrapper = document.createElement('div');
-  const isLatest = index === allRounds.length - 1;
-  wrapper.className = isLatest ? 'latest-round' : 'played-round';
-  // ✅ Append conditionally
-  if (restDiv) {
-    wrapper.append(gamesDiv,restDiv);
-  } else {
-    wrapper.append(gamesDiv);
-  }
-  resultsDiv.append(wrapper);
-  // ✅ Navigation buttons
-  document.getElementById('prevBtn').disabled = index === 0;
-  document.getElementById('nextBtn').disabled = false;
-}
-
 
 // Resting players display
 function t(key) {
@@ -669,41 +631,7 @@ function chkrenderRestingPlayers(data, index) {
   return restDiv;
 }
 
-function renderTeam(teamPlayers, side, roundIndex, courtIndex) {
-  const teamDiv = document.createElement('div');
-  teamDiv.className = `team ${side}`;
 
-  // Store metadata for swap logic
-  teamDiv.dataset.round = roundIndex;
-  teamDiv.dataset.court = courtIndex;
-  teamDiv.dataset.side = side;
-
-  // Players
-  teamPlayers.forEach(player => {
-    const playerBtn = makePlayerButton(
-      player.name,
-      side,
-      roundIndex,
-      player.index,
-      player,
-      courtIndex
-    );
-    teamDiv.appendChild(playerBtn);
-  });
-
-  // Swap button (if this is latest round)
-  if (roundIndex === allRounds.length - 1) {
-    const swapBtn = document.createElement('button');
-    swapBtn.className = 'swap-btn';
-    swapBtn.innerHTML = '⇄';
-
-    swapBtn.onclick = () => swapTeams(roundIndex, courtIndex);
-
-    teamDiv.appendChild(swapBtn);
-  }
-
-  return teamDiv;
-}
 function renderRestingPlayers(data, index) {
   const restDiv = document.createElement('div');
   restDiv.className = 'round-header';
@@ -849,36 +777,89 @@ function getTeamTypeFromPairs(playerNames) {
 
   return "unknown";
 }
+function renderGames(data, index) {
+  const wrapper = document.createElement('div');
 
-function renderGames(data, roundIndex) {
-  const gamesDiv = document.createElement('div');
-  gamesDiv.className = 'games-container';
+  data.games.forEach((game, gameIndex) => {
 
-  data.games.forEach((game, courtIndex) => {
-
+    // 🟦 Court card (visual only)
     const courtCard = document.createElement('div');
     courtCard.className = 'court-card';
 
-    // ✅ Court number overlay (STATIC)
+    // 🟨 Court number (UI only)
     const courtNo = document.createElement('div');
     courtNo.className = 'court-number';
-    courtNo.innerText = `Court ${courtIndex + 1}`;
+    courtNo.innerText = 'Court ' + (game.court ?? (gameIndex + 1));
+    courtCard.appendChild(courtNo);
 
-    // ✅ Teams container (SWAPPABLE)
     const teamsDiv = document.createElement('div');
     teamsDiv.className = 'teams';
 
-    const leftTeam = renderTeam(game.teamA, 'left', roundIndex, courtIndex);
-    const rightTeam = renderTeam(game.teamB, 'right', roundIndex, courtIndex);
+    const makeTeamDiv = (teamSide) => {
+      const teamDiv = document.createElement('div');
+      teamDiv.className = 'team';
+      teamDiv.dataset.teamSide = teamSide;
+      teamDiv.dataset.gameIndex = gameIndex;
 
-    teamsDiv.append(leftTeam, rightTeam);
+      const players = teamSide === 'L' ? game.pair1 : game.pair2;
+      players.forEach((p, i) => {
+        teamDiv.appendChild(
+          makePlayerButton(p, teamSide, gameIndex, i, data, index)
+        );
+      });
 
-    // ✅ Final assembly
-    courtCard.append(courtNo, teamsDiv);
-    gamesDiv.appendChild(courtCard);
+      // ✅ Direct tap swap ONLY for latest round
+      const isLatestRound = index === allRounds.length - 1;
+      if (isLatestRound) {
+        teamDiv.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          if (window.selectedTeam) {
+            const src = window.selectedTeam;
+
+            // prevent same-team double tap
+            if (
+              src.gameIndex !== gameIndex ||
+              src.teamSide !== teamSide
+            ) {
+              handleTeamSwapAcrossCourts(
+                src,
+                { teamSide, gameIndex },
+                data,
+                index
+              );
+            }
+
+            // clear selection
+            window.selectedTeam = null;
+            document
+              .querySelectorAll('.selected-team')
+              .forEach(el => el.classList.remove('selected-team'));
+          } else {
+            // select first team
+            window.selectedTeam = { teamSide, gameIndex };
+            teamDiv.classList.add('selected-team');
+          }
+        });
+      }
+
+      return teamDiv;
+    };
+
+    const teamL = makeTeamDiv('L');
+    const teamR = makeTeamDiv('R');
+
+    const vs = document.createElement('span');
+    vs.className = 'vs';
+    vs.innerText = '  ';
+
+    teamsDiv.append(teamL, vs, teamR);
+    courtCard.appendChild(teamsDiv);
+    wrapper.appendChild(courtCard);
   });
 
-  return gamesDiv;
+  return wrapper;
 }
 
 function makePlayerButton(name, teamSide, gameIndex, playerIndex, data, index) {
@@ -1252,5 +1233,3 @@ lockBtn.addEventListener('click', () => {
   // Update icon text
   lockBtn.textContent = interactionLocked ? '🔒' : '🔓';
 });
-
-
