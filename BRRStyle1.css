@@ -15,6 +15,22 @@ body {
   background: #f2eef9;
 }
 
+body {
+  overflow: hidden;
+}
+
+#page2 {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#game-results {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .app-logo-premium {
   position: absolute;          /* REQUIRED */
   left: 50%;
