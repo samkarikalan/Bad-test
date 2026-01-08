@@ -7,7 +7,7 @@
   border-radius: 1rem;
   overflow: hidden;  
   margin: 1rem auto;
-
+  padding: 5px;
   text-align: center;
   font-weight: bold;
 }
