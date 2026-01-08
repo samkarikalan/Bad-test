@@ -781,31 +781,36 @@ function makeRestButton(player, data, index) {
   return btn;
 }
 
-
 function makeTeamButton(label, teamSide, gameIndex, data, index) {
   const btn = document.createElement('button');
   btn.className = 'team-btn';
   btn.innerText = label;
 
-  // Store internal info
   btn.dataset.gameIndex = gameIndex;
   btn.dataset.teamSide = teamSide;
 
-  const isLatestRound = index === allRounds.length - 1;
-  if (!isLatestRound) return btn;
+  // ❗ SAFETY: allRounds may not exist yet
+  if (!window.allRounds || index !== allRounds.length - 1) {
+    return btn;
+  }
 
   btn.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation(); // 🔑 team owns its click
+    e.stopPropagation();
 
-    // Clear any selected players (simple UX)
+    const teamDiv = btn.closest('.team');
+    if (!teamDiv) return; // 🔑 prevents crash
+
+    // Clear previous selections
+    document.querySelectorAll('.team.selected-team')
+      .forEach(t => t.classList.remove('selected-team'));
+
     document.querySelectorAll('.selected')
       .forEach(p => p.classList.remove('selected'));
 
     if (window.selectedTeam) {
       const src = window.selectedTeam;
 
-      // Swap only if different court
       if (src.gameIndex !== gameIndex) {
         handleTeamSwapAcrossCourts(
           src,
@@ -815,15 +820,10 @@ function makeTeamButton(label, teamSide, gameIndex, data, index) {
         );
       }
 
-      // Reset state
       window.selectedTeam = null;
-      document.querySelectorAll('.selected-team')
-        .forEach(b => b.classList.remove('selected-team'));
-
     } else {
-      // Select this team
       window.selectedTeam = { teamSide, gameIndex };
-      btn.classList.add('selected-team');
+      teamDiv.classList.add('selected-team'); // ✅ SAFE
     }
   });
 
