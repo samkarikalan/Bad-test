@@ -130,11 +130,7 @@
   cursor: default;
 }
 
-/* Selected team */
-.selected-team {
-  outline: 2px solid #4b7cff;
-  background: rgba(75, 124, 255, 0.08);
-}
+
 .vs {
   display: inline-block;
   width: 1rem;   /* adjust as you like */
@@ -193,16 +189,7 @@
   background: #3f8e9c;
   transform: scale(1.1);
 }
-.Lplayer-btn.selected,
-.Rplayer-btn.selected,
-.rest-btn.selected {
-  outline: 0.1rem solid red;
-  background: #F7F22D !important;
-  color: black;
-  box-shadow: 0 0 0.625rem #4caf50;
-  transform: scale(1.01);
-  animation: borderPulse 2s ease-in-out infinite;
-}
+
  .rest-btn {
   color: #000 !important;
 }
@@ -237,16 +224,7 @@
   transform: scale(1.15);
   background: #ffa726;
 }
-@keyframes borderPulse {
-  0%, 100% {
-    box-shadow: 0 0 0.25rem #4caf50, 0 0 0.5rem #4caf50;
-    outline-color: red;
-  }
-  50% {
-    box-shadow: 0 0 1rem #4caf50, 0 0 1.5rem #4caf50;
-    outline-color: black;
-  }
-}
+
 /* Rest Box */
 .rest-box {
   display: none;
@@ -340,6 +318,52 @@
 .gender-btn.female {
   background: #f48fb1;
   color: #fff;
+}
+
+/* ==============================
+   BLUE SELECTION (ANIMATED)
+   ============================== */
+
+/* Shared animation */
+@keyframes blueOutlinePulse {
+  0% {
+    outline-color: #2563eb;
+    outline-offset: 2px;
+  }
+  50% {
+    outline-color: #60a5fa;
+    outline-offset: 4px;
+  }
+  100% {
+    outline-color: #2563eb;
+    outline-offset: 2px;
+  }
+}
+
+/* Selected TEAM */
+.team.selected-team {
+  outline: 3px solid #2563eb;
+  outline-offset: -3px;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  position: relative;
+  z-index: 5;
+
+  animation: blueOutlinePulse 1.6s ease-in-out infinite;
+}
+
+/* Selected PLAYER / REST */
+.Lplayer-btn.selected,
+.Rplayer-btn.selected,
+.rest-btn.selected {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  background: inherit !important;
+  box-shadow: none !important;
+  transform: none !important;
+
+  animation: blueOutlinePulse 1.6s ease-in-out infinite;
 }
 
 .row-field {
