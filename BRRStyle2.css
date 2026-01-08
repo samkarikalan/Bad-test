@@ -101,41 +101,38 @@
   border: none;
 }
 
-/* Court card */
+/* Court wrapper */
 .court-card {
   position: relative;
-  background: #fff;
-  border-radius: 20px;
-  padding: 22px 14px 14px;
-  margin-bottom: 18px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+  margin-bottom: 14px;
 }
 
-/* Teams layout */
-.teams {
-  display: flex;
-  gap: 14px;
-}
-
-/* Court number overlay */
+/* Court number */
 .court-number {
   position: absolute;
   top: -10px;
-  left: 16px;
-
-  background: #ffb703;
-  color: #222;
+  left: 14px;
   font-size: 13px;
-  font-weight: 800;
-
-  padding: 4px 12px;
-  border-radius: 12px;
-
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-
-  pointer-events: none; /* ✅ swap-safe */
+  font-weight: 700;
+  color: #555;
+  pointer-events: none;
+  z-index: 5;
 }
 
+/* Team interaction */
+.team {
+  cursor: pointer;
+}
+
+.played-round .team {
+  cursor: default;
+}
+
+/* Selected team */
+.selected-team {
+  outline: 2px solid #4b7cff;
+  background: rgba(75, 124, 255, 0.08);
+}
 .vs {
   display: inline-block;
   width: 1rem;   /* adjust as you like */
