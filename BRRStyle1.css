@@ -19,7 +19,7 @@ body {
 /* Page container layout         */
 /* ============================= */
 .page {
-  display: flex;
+ 
   flex-direction: column;
   height: calc(100vh - 80px);      /* Adjust for top-bar + tabs */
   overflow-y: auto;                /* scroll page if needed */
