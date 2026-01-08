@@ -694,11 +694,8 @@ if (IS_MIXED_SESSION && player?.gender) {
 
 
 
-  btn.addEventListener('click', (e) => {
-  e.stopPropagation();   // 🔑 player owns the click
-  selectPlayer(btn, ...);
-});
-  //btn.addEventListener('click', handleTap);
+ 
+  btn.addEventListener('click', handleTap);
   //btn.addEventListener('touchstart', handleTap);
 
   return btn;
