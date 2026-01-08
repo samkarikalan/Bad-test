@@ -692,7 +692,13 @@ if (IS_MIXED_SESSION && player?.gender) {
     }
   };
 
-  btn.addEventListener('click', handleTap);
+
+
+  btn.addEventListener('click', (e) => {
+  e.stopPropagation();   // 🔑 player owns the click
+  selectPlayer(btn, ...);
+});
+  //btn.addEventListener('click', handleTap);
   //btn.addEventListener('touchstart', handleTap);
 
   return btn;
@@ -779,30 +785,50 @@ function makeRestButton(player, data, index) {
 function makeTeamButton(label, teamSide, gameIndex, data, index) {
   const btn = document.createElement('button');
   btn.className = 'team-btn';
-  btn.innerText = label; // Visible label stays simple (Team L / Team R)
-  // Store internal unique info in dataset
+  btn.innerText = label;
+
+  // Store internal info
   btn.dataset.gameIndex = gameIndex;
   btn.dataset.teamSide = teamSide;
+
   const isLatestRound = index === allRounds.length - 1;
   if (!isLatestRound) return btn;
+
   btn.addEventListener('click', (e) => {
     e.preventDefault();
+    e.stopPropagation(); // 🔑 team owns its click
+
+    // Clear any selected players (simple UX)
+    document.querySelectorAll('.selected')
+      .forEach(p => p.classList.remove('selected'));
+
     if (window.selectedTeam) {
       const src = window.selectedTeam;
+
+      // Swap only if different court
       if (src.gameIndex !== gameIndex) {
-        handleTeamSwapAcrossCourts(src, { teamSide, gameIndex }, data, index);
+        handleTeamSwapAcrossCourts(
+          src,
+          { teamSide, gameIndex },
+          data,
+          index
+        );
       }
+
+      // Reset state
       window.selectedTeam = null;
-      document.querySelectorAll('.selected-team').forEach(b => b.classList.remove('selected-team'));
+      document.querySelectorAll('.selected-team')
+        .forEach(b => b.classList.remove('selected-team'));
+
     } else {
-      // Store internal info for selection
+      // Select this team
       window.selectedTeam = { teamSide, gameIndex };
       btn.classList.add('selected-team');
     }
   });
+
   return btn;
 }
-
 function handleDropRestToTeam(
   e, teamSide, gameIndex, playerIndex, data, roundIndex, movingPlayer = null
 ) {
