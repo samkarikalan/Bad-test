@@ -15,20 +15,41 @@ body {
   background: #f2eef9;
 }
 
-body {
-  overflow: hidden;
-}
-
-#page2 {
-  height: 100vh;
+/* ============================= */
+/* Page container layout         */
+/* ============================= */
+.page {
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 80px);      /* Adjust for top-bar + tabs */
+  overflow-y: auto;                /* scroll page if needed */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+  box-sizing: border-box;
 }
 
-#game-results {
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+/* Keep headers / fixed controls visible */
+.page > * {
+  flex-shrink: 0;
+}
+
+/* ============================= */
+/* Universal local-scroll class  */
+/* ============================= */
+.local-scroll {
+  overflow-y: auto;                /* enable vertical scroll */
+  overscroll-behavior: contain;    /* lock scroll inside container */
+  -webkit-overflow-scrolling: touch; /* smooth momentum scroll for iOS */
+}
+
+/* Flex-fill height for scrollable containers inside flex layout */
+.local-scroll.flex-height {
+  flex: 1;          /* take remaining vertical space */
+  min-height: 0;    /* required for flex scroll to work properly */
+}
+
+/* Optional: fixed height containers */
+.local-scroll.fixed-height {
+  height: 300px;    /* adjust as needed */
 }
 
 .app-logo-premium {
