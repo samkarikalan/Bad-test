@@ -8,9 +8,11 @@
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   margin: 1rem auto;
+
   padding: 5px;
-  padding-top: 25px;
+  padding-top: 25px;   /* space for label */
   padding-bottom: 10px;
+
   text-align: center;
   font-weight: bold;
 }
@@ -108,15 +110,13 @@
 }
 
 /* Court number */
-.court-number {
+.court-no {
   position: absolute;
-  top: -10px;
-  left: 14px;
-  font-size: 13px;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
   font-weight: 700;
-  color: #555;
-  pointer-events: none;
-  z-index: 5;
 }
 
 /* Team interaction */
