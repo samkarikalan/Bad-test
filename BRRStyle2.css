@@ -1,17 +1,12 @@
 /* Each match container */
 .teams {
   display: flex;
-  background: white;
+  background: none;
   position: relative;
   width: 95%;
   border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  overflow: hidden;  
   margin: 1rem auto;
-
-  padding: 5px;
-  padding-top: 25px;   /* space for label */
-  padding-bottom: 10px;
 
   text-align: center;
   font-weight: bold;
@@ -104,20 +99,27 @@
 }
 
 /* Court wrapper */
-.court-card {
+.plcourt-card {
+  display: flex;
+  flex-direction: column;      /* children arranged in rows */
+  background: white;
   position: relative;
-  margin-bottom: 14px;
+  width: 95%;
+  margin: 1rem auto;
+
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+  padding: 5px;
+  padding-top: 15px;
+  padding-bottom: 10px;
+
+  text-align: center;
 }
 
-/* Court number */
-.court-no {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  font-weight: 700;
-}
+
+
 
 /* Team interaction */
 .team {
@@ -378,18 +380,7 @@
 .timer-toggle-btn:active {
   transform: scale(0.95);
 }
-.court-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: linear-gradient(to bottom right, #d6f0ff, #b8e0f8);
-  border: 1px solid #0a66a3;
-  border-radius: 1.5rem;
-  padding: 5px 5px;
-  width: fit-content;
-  font-family: sans-serif;
-}
+
 .row-label {
   width: auto;         /* adjust based on your layout */
   font-size: 17px;
@@ -410,6 +401,18 @@
   pointer-events: none;
 }
 
+.court-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(to bottom right, #d6f0ff, #b8e0f8);
+  border: 1px solid #0a66a3;
+  border-radius: 1.5rem;
+  padding: 5px 5px;
+  width: fit-content;
+  font-family: sans-serif;
+}
 
 #num-courts {
   font-size: 20px;

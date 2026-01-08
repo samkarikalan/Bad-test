@@ -784,7 +784,7 @@ function renderGames(data, index) {
 
     // 🟦 Court card (visual only)
     const courtCard = document.createElement('div');
-    courtCard.className = 'court-card';
+    courtCard.className = 'plcourt-card';
 
     // 🟨 Court number (UI only)
     const courtNo = document.createElement('div');
