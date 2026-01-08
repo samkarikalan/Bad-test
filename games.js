@@ -669,7 +669,41 @@ function chkrenderRestingPlayers(data, index) {
   return restDiv;
 }
 
+function renderTeam(teamPlayers, side, roundIndex, courtIndex) {
+  const teamDiv = document.createElement('div');
+  teamDiv.className = `team ${side}`;
 
+  // Store metadata for swap logic
+  teamDiv.dataset.round = roundIndex;
+  teamDiv.dataset.court = courtIndex;
+  teamDiv.dataset.side = side;
+
+  // Players
+  teamPlayers.forEach(player => {
+    const playerBtn = makePlayerButton(
+      player.name,
+      side,
+      roundIndex,
+      player.index,
+      player,
+      courtIndex
+    );
+    teamDiv.appendChild(playerBtn);
+  });
+
+  // Swap button (if this is latest round)
+  if (roundIndex === allRounds.length - 1) {
+    const swapBtn = document.createElement('button');
+    swapBtn.className = 'swap-btn';
+    swapBtn.innerHTML = '⇄';
+
+    swapBtn.onclick = () => swapTeams(roundIndex, courtIndex);
+
+    teamDiv.appendChild(swapBtn);
+  }
+
+  return teamDiv;
+}
 function renderRestingPlayers(data, index) {
   const restDiv = document.createElement('div');
   restDiv.className = 'round-header';
