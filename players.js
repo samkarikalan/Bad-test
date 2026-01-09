@@ -767,6 +767,12 @@ function removeFixedCard(key) {
   if (card) card.remove();
 }
 
+function isFixedPairActive([p1, p2]) {
+  return schedulerState.allPlayers.some(p => p.name === p1 && p.active) &&
+         schedulerState.allPlayers.some(p => p.name === p2 && p.active);
+}
+
+
 function addFixedPairold() {
   const p1 = document.getElementById('fixed-pair-1').value;
   const p2 = document.getElementById('fixed-pair-2').value;
