@@ -15,8 +15,6 @@ body {
   background: #f2eef9;
 }
 
-body { overflow: hidden; }
-
 .scroll-area {
   overflow-y: auto;
   height: calc(100vh - 140px);
