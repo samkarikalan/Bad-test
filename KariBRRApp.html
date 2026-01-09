@@ -117,7 +117,7 @@
 <!--         Players Page          -->
 <!-- ============================= -->
 <div id="page1" class="page" > 
-
+<div class="scroll-area">
   <div class="card">    
     <button onclick="showImportModal()" data-i18n="importPlayers"></button>
   </div> 
@@ -148,7 +148,7 @@
 
     <div id="fixed-pair-list" class="fixed-pairs-list"></div>
   </div>
-
+</div>
 </div> <!-- page1 -->
 
 <!-- ============================= -->
@@ -156,11 +156,12 @@
 <!--           Rounds Page         -->
 <!-- ============================= -->
 <div id="page2" class="page" style="display:none;">  
+  <div class="scroll-area">
   <div id="roundTitle">R</div>
 
   <!-- Scrollable game-results -->
   <div id="game-results" class="local-scroll flex-height"></div>  
-
+  </div>
   <div class="row-field">  
     <div class="court-card">
       <label for="num-courts" class="row-label" data-i18n="courts"></label>
