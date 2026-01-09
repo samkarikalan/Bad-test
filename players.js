@@ -720,8 +720,30 @@ function modifyFixedPair(p1 = null, p2 = null) {
   addFixedCard(p1, p2, pairKey);
   updateFixedPairSelectors();
 }
-
 function addFixedCard(p1, p2, key) {
+  const list = document.getElementById('fixed-pair-list');
+
+  const card = document.createElement("div");
+  card.className = "fixed-card";
+  card.setAttribute("data-key", key);
+
+  card.innerHTML = `
+    <div class="fixed-name">${p1} & ${p2}</div>
+    <div class="fixed-delete">
+      <button class="pec-btn delete"
+              onclick="modifyFixedPair('${p1}', '${p2}')">🗑</button>
+    </div>
+  `;
+
+  // 🔥 ADD THIS LINE
+  card.classList.toggle(
+    "inactive",
+    !isFixedPairActive([p1, p2])
+  );
+
+  list.appendChild(card);
+}
+function addFixedCard2(p1, p2, key) {
   const list = document.getElementById('fixed-pair-list');
 
   const card = document.createElement("div");
