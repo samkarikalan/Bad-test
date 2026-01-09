@@ -658,6 +658,11 @@ z-index: 1000;
   cursor: pointer;
   line-height: 1;
 }
+
+.fixed-card.inactive {
+  opacity: 0.45;
+}
+
 .row-addplayer {
   display: flex;
   gap: 10px;
