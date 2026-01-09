@@ -1,3 +1,104 @@
+
+/* Card container */
+.action-card {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 520px;
+
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px;
+
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+}
+
+/* Button row */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Base button */
+.btn {
+  flex: 1;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  transition: transform 0.05s ease,
+              box-shadow 0.15s ease,
+              background-color 0.15s ease;
+}
+
+/* Secondary – Swap */
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1.5px solid #cbd5e1;
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* Primary – Complete */
+.btn-primary {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 6px 14px rgba(34, 197, 94, 0.35);
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+  box-shadow: 0 3px 8px rgba(34, 197, 94, 0.4);
+}
+
+/* Danger – End Practice */
+.btn-danger {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1.8px solid #fca5a5;
+}
+
+.btn-danger:active {
+  transform: scale(0.97);
+  background: #fff1f2;
+}
+
+/* Improve tap safety */
+.btn-danger {
+  margin-left: 6px;
+}
+
+/* Small screens */
+@media (max-width: 360px) {
+  .btn span {
+    display: none;
+  }
+
+  .btn {
+    font-size: 18px;
+  }
+}
+
+
 /* Each match container */
 .teams {
   display: flex;
