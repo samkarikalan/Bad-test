@@ -574,7 +574,7 @@ function showRound(index) {
   }
   resultsDiv.append(wrapper);
   // ✅ Navigation buttons
-  document.getElementById('prevBtn').disabled = index === 0;
+  //document.getElementById('prevBtn').disabled = index === 0;
   document.getElementById('nextBtn').disabled = false;
 }
 

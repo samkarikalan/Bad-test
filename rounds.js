@@ -190,6 +190,13 @@ function nextRound() {
   }
   updateSummaryPageAccess()
 }
+function endRounds() {  
+	updSchedule(allRounds.length - 1, schedulerState); // pass schedulerState              
+	document.getElementById('nextBtn').disabled = true;
+	updateSummaryPageAccess();
+	showPage('page3');
+	
+}
 function prevRound() {
   if (currentRoundIndex > 0) {
     currentRoundIndex--;
