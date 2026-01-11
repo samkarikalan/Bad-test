@@ -191,10 +191,17 @@ function nextRound() {
   updateSummaryPageAccess()
 }
 function endRounds() {  
-	updSchedule(allRounds.length - 1, schedulerState); // pass schedulerState              
-	document.getElementById('nextBtn').disabled = true;
+	updSchedule(allRounds.length, schedulerState); // pass schedulerState              
+	// Disable Next & Refresh
+  document.getElementById("nextBtn").disabled = true;
+  document.getElementById("roundTitle2").disabled = true;
+
+  // Optional: also disable End to prevent double-click
+  document.getElementById("endBtn").disabled = true;
+	currentRoundIndex = allRounds.length;
 	updateSummaryPageAccess();
 	showPage('page3');
+
 	
 }
 function prevRound() {

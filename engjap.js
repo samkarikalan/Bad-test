@@ -23,7 +23,7 @@ const translations = {
     add: "Add",
     pround: " Round",
     nround: "Next Round ",
-    endrounds: "End Game ",
+    endrounds: "End Session ",
     roundShort: "R",
     rank: "Rank",
     name: "Name",
