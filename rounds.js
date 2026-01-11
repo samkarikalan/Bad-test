@@ -191,14 +191,19 @@ function nextRound() {
   updateSummaryPageAccess()
 }
 function endRounds() {  
-	updSchedule(allRounds.length, schedulerState); // pass schedulerState              
+	updSchedule(allRounds.length - 1, schedulerState); // pass schedulerState
+    const newRound = AischedulerNextRound(schedulerState); // do NOT wrap in []
+    allRounds.push(newRound);
+    currentRoundIndex = allRounds.length - 2;
+    showRound(currentRoundIndex);
+	
+	// pass schedulerState              
 	// Disable Next & Refresh
   document.getElementById("nextBtn").disabled = true;
   document.getElementById("roundTitle2").disabled = true;
 
   // Optional: also disable End to prevent double-click
   document.getElementById("endBtn").disabled = true;
-	currentRoundIndex = allRounds.length;
 	updateSummaryPageAccess();
 	showPage('page3');
 
