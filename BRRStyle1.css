@@ -15,11 +15,6 @@ body {
   background: #f2eef9;
 }
 
-.scroll-area {
-  overflow-y: auto;
-  height: calc(100vh - 140px);
-}
-
 .app-logo-premium {
   position: absolute;          /* REQUIRED */
   left: 50%;
@@ -658,11 +653,6 @@ z-index: 1000;
   cursor: pointer;
   line-height: 1;
 }
-
-.fixed-card.inactive {
-  opacity: 0.45;
-}
-
 .row-addplayer {
   display: flex;
   gap: 10px;

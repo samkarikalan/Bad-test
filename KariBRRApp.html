@@ -117,7 +117,7 @@
 <!--         Players Page          -->
 <!-- ============================= -->
 <div id="page1" class="page" > 
-<div class="scroll-area">
+
   <div class="card">    
     <button onclick="showImportModal()" data-i18n="importPlayers"></button>
   </div> 
@@ -148,7 +148,7 @@
 
     <div id="fixed-pair-list" class="fixed-pairs-list"></div>
   </div>
-</div>
+
 </div> <!-- page1 -->
 
 <!-- ============================= -->
@@ -156,12 +156,8 @@
 <!--           Rounds Page         -->
 <!-- ============================= -->
 <div id="page2" class="page" style="display:none;">  
-  <div class="scroll-area">
   <div id="roundTitle">R</div>
-
-  <!-- Scrollable game-results -->
-  <div id="game-results" class="local-scroll flex-height"></div>  
-  </div>
+  <div id="game-results"></div>  
   <div class="row-field">  
     <div class="court-card">
       <label for="num-courts" class="row-label" data-i18n="courts"></label>
@@ -169,31 +165,21 @@
       <span id="num-courts">1</span>
       <button class="circle-btn" id="courtPlus">+</button>
     </div>    
+    <!-- 🔒 Lock / Unlock Icon -->
     <span class="lock-icon" id="lockToggleBtn">🔒</span>
+    <!-- Timer Icon -->
     <div class="timer-card">
-      <button id="timerToggleBtn" class="row-label timer-toggle-btn" onclick="toggleTimer()">⏱️</button>
-      <button class="circle-btn" id="timerMinus">−</button>
-      <span class="timer-display" id="timerDisplay">08:00</span>
-      <button class="circle-btn" id="timerPlus">+</button>
-    </div>
-  </div>  
-  
-  <div class="action-card">
-  <div class="action-buttons">
-    <button class="btn btn-secondary">
-      🔁 <span>Swap</span>
-    </button>
+  <button id="timerToggleBtn" class="row-label timer-toggle-btn" onclick="toggleTimer()">⏱️</button>
 
-    <button class="btn btn-primary">
-      ✔ <span>Complete</span>
-    </button>
-
-    <button class="btn btn-danger">
-      🏁 <span>End</span>
-    </button>
-  </div>
+  <button class="circle-btn" id="timerMinus">−</button>
+  <span class="timer-display" id="timerDisplay">08:00</span>
+  <button class="circle-btn" id="timerPlus">+</button>
 </div>
-  
+
+
+
+
+</div>  
   <div class="round-navigation">
     <button id="prevBtn" onclick="prevRound()" disabled>
       <span class="icon">◀</span>
@@ -206,8 +192,7 @@
     </button>   
   </div>
 </div>
-  
-  
+
 
 
 <!-- Timer Sound -->
@@ -221,33 +206,17 @@
 <!--        Summary / Report       -->
 <!-- ============================= -->
 <div id="page3" class="page" style="display:none;">
-  
-  <!-- Scrollable report container -->
-  <div id="reportContainer" class="local-scroll flex-height">
-    <!-- content of report goes here -->
-  </div>
-  
-  <!-- Scrollable export container -->
-  <div id="export" class="local-scroll flex-height">
-    <!-- export buttons or content go here -->
-  </div>
-
+  <div id="reportContainer"></div>
+  <div id="export"></div>
 </div>
 
 <div id="page4" class="page" style="display:none;">
-  
-  <!-- Fixed buttons row -->
   <div class="help-buttons">
     <button class="help-btn active" onclick="loadHelp('players')" data-i18n="players"></button>
     <button class="help-btn" onclick="loadHelp('rounds')" data-i18n="rounds"></button>
     <button class="help-btn" onclick="loadHelp('summary')" data-i18n="summary"></button>
   </div>
-
-  <!-- Scrollable help content -->
-  <div id="helpContainer" class="local-scroll flex-height">
-    <!-- help content will appear here -->
-  </div>
-
+  <div id="helpContainer"></div>
 </div>
   
 <!-- ============================= -->

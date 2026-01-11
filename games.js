@@ -1,3 +1,126 @@
+
+// ==============================
+// Generate next round (no global updates)
+// ==============================
+function betaAischedulerNextRound(schedulerState) {
+  const {
+    activeplayers,
+    numCourts,
+    fixedPairs,
+    restCount,
+    opponentMap,
+    pairPlayedSet
+  } = schedulerState;
+
+  const totalPlayers = activeplayers.length;
+  const playersPerRound = numCourts * 4;
+  const numResting = Math.max(totalPlayers - playersPerRound, 0);
+
+  /* ==========================
+     1️⃣ RESTING / PLAYING
+  ========================== */
+
+  let resting = [];
+  let playing = [];
+
+  if (numResting > 0) {
+    resting = schedulerState.restQueue.slice(0, numResting);
+    playing = activeplayers.filter(p => !resting.includes(p));
+  } else {
+    playing = activeplayers.slice(0, playersPerRound);
+  }
+
+  /* ==========================
+     2️⃣ FIXED PAIRS
+  ========================== */
+
+  const playingSet = new Set(playing);
+  const fixedPairsThisRound = fixedPairs.filter(
+    ([a, b]) => playingSet.has(a) && playingSet.has(b)
+  );
+
+  const fixedPlayers = new Set(fixedPairsThisRound.flat());
+  let freePlayers = playing.filter(p => !fixedPlayers.has(p));
+
+  const requiredPairs = playersPerRound / 2;
+  const neededFreePairs = requiredPairs - fixedPairsThisRound.length;
+
+  /* ==========================
+     3️⃣ BEST FREE PAIRS
+  ========================== */
+
+  let freePairs =
+    findDisjointPairs(
+      freePlayers,
+      pairPlayedSet,
+      neededFreePairs,
+      opponentMap
+    ) || [];
+
+  // fallback safety
+  if (freePairs.length < neededFreePairs) {
+    const used = new Set(freePairs.flat());
+    for (let i = 0; i < freePlayers.length; i++) {
+      for (let j = i + 1; j < freePlayers.length; j++) {
+        const a = freePlayers[i], b = freePlayers[j];
+        if (used.has(a) || used.has(b)) continue;
+        freePairs.push([a, b]);
+        used.add(a); used.add(b);
+        if (freePairs.length === neededFreePairs) break;
+      }
+      if (freePairs.length === neededFreePairs) break;
+    }
+  }
+
+  const allPairs = [...fixedPairsThisRound, ...freePairs];
+
+  /* ==========================
+     4️⃣ BEST COURT MATCHUPS
+  ========================== */
+
+  const matchupScores = getMatchupScores(allPairs, opponentMap);
+
+  const games = [];
+  const usedPairs = new Set();
+
+  for (const m of matchupScores) {
+    const k1 = m.pair1.join("&");
+    const k2 = m.pair2.join("&");
+    if (usedPairs.has(k1) || usedPairs.has(k2)) continue;
+
+    games.push({
+      court: games.length + 1,
+      pair1: [...m.pair1],
+      pair2: [...m.pair2]
+    });
+
+    usedPairs.add(k1);
+    usedPairs.add(k2);
+
+    if (games.length === numCourts) break;
+  }
+
+  /* ==========================
+     5️⃣ REST DISPLAY
+  ========================== */
+
+  const restingWithCount = resting.map(p => {
+    const cnt = restCount.get(p) || 0;
+    return `${p}#${cnt + 1}`;
+  });
+
+  schedulerState.roundIndex = (schedulerState.roundIndex || 0) + 1;
+
+  return {
+    round: schedulerState.roundIndex,
+    resting: restingWithCount,
+    playing,
+    games
+  };
+}
+
+
+
 function AischedulerNextRound(schedulerState) {
   const {
     activeplayers,
@@ -425,45 +548,85 @@ function clearPreviousRound() {
 // Show a round
 function showRound(index) {
   clearPreviousRound();
-
   const resultsDiv = document.getElementById('game-results');
   resultsDiv.innerHTML = '';
-
   const data = allRounds[index];
   if (!data) return;
-
+  // ✅ Update round title
   const roundTitle = document.getElementById("roundTitle");
   roundTitle.className = "roundTitle";
-  roundTitle.innerText =
-    translations[currentLang].nround + " " + data.round;
-
+  roundTitle.innerText = translations[currentLang].nround + " " + data.round;
+  // ✅ Create sections safely
   let restDiv = null;
   if (data.resting && data.resting.length !== 0) {
     restDiv = renderRestingPlayers(data, index);
   }
-
   const gamesDiv = renderGames(data, index);
-
+  // ✅ Wrap everything in a container to distinguish latest vs played
   const wrapper = document.createElement('div');
   const isLatest = index === allRounds.length - 1;
   wrapper.className = isLatest ? 'latest-round' : 'played-round';
-
+  // ✅ Append conditionally
   if (restDiv) {
-    wrapper.append(gamesDiv, restDiv);
+    wrapper.append(gamesDiv,restDiv);
   } else {
     wrapper.append(gamesDiv);
   }
-
   resultsDiv.append(wrapper);
-
+  // ✅ Navigation buttons
   document.getElementById('prevBtn').disabled = index === 0;
   document.getElementById('nextBtn').disabled = false;
 }
+
 
 // Resting players display
 function t(key) {
   return translations[currentLang]?.[key] || key;
 }
+
+
+function chkrenderRestingPlayers(data, index) {
+  const restDiv = document.createElement('div');
+  restDiv.className = 'round-header';
+  restDiv.style.paddingLeft = "12px";
+
+  const title = document.createElement('div');
+  title.dataset.i18n = 'sittingOut';
+  title.textContent = t('sittingOut');
+  restDiv.appendChild(title);
+
+  const restBox = document.createElement('div');
+  restBox.className = 'rest-box';
+
+  if (!data.resting || data.resting.length === 0) {
+    const span = document.createElement('span');
+    span.dataset.i18n = 'none';
+    span.textContent = t('none');
+    restBox.appendChild(span);
+  } else {
+    data.resting.forEach(restName => {
+      const baseName = restName.split('#')[0];
+
+      const playerObj = schedulerState.allPlayers.find(
+        p => p.name === baseName
+      );
+
+      if (playerObj) {
+        restBox.appendChild(
+          makeRestButton(
+            { ...playerObj, displayName: restName },
+            data,
+            index
+          )
+        );
+      }
+    });
+  }
+
+  restDiv.appendChild(restBox);
+  return restDiv;
+}
+
 
 function renderRestingPlayers(data, index) {
   const restDiv = document.createElement('div');
@@ -509,6 +672,85 @@ restDiv.appendChild(title);
   return restDiv;
 }
 
+
+function renderGamestmp(data, index) {
+  const wrapper = document.createElement('div');
+
+  data.games.forEach((game, gameIndex) => {
+    const teamsDiv = document.createElement('div');
+    teamsDiv.className = 'teams';
+
+    const makeTeamDiv = (teamSide) => {
+      const teamDiv = document.createElement('div');
+      teamDiv.className = 'team';
+      teamDiv.dataset.teamSide = teamSide;
+      teamDiv.dataset.gameIndex = gameIndex;
+
+      const swapIcon = document.createElement('div');
+      swapIcon.className = 'swap-icon';
+      swapIcon.innerHTML = '🔁';
+      teamDiv.appendChild(swapIcon);
+
+      // 👥 Players
+      const teamPairs = teamSide === 'L' ? game.pair1 : game.pair2;
+      const playerNames = [];
+
+      teamPairs.forEach((p, i) => {
+        playerNames.push(p);
+        teamDiv.appendChild(
+          makePlayerButton(p, teamSide, gameIndex, i, data, index)
+        );
+      });
+
+      // 🎨 SET TEAM TYPE (men / women / mixed)
+      const teamType = getTeamTypeFromPairs(playerNames);
+      teamDiv.dataset.teamType = teamType;
+      
+      // 🔁 Swap logic (latest round only)
+      const isLatestRound = index === allRounds.length - 1;
+      if (isLatestRound) {
+        swapIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          if (window.selectedTeam) {
+            const src = window.selectedTeam;
+            if (src.gameIndex !== gameIndex) {
+              handleTeamSwapAcrossCourts(
+                src,
+                { teamSide, gameIndex },
+                data,
+                index
+              );
+            }
+            window.selectedTeam = null;
+            document
+              .querySelectorAll('.selected-team')
+              .forEach(el => el.classList.remove('selected-team'));
+          } else {
+            window.selectedTeam = { teamSide, gameIndex };
+            teamDiv.classList.add('selected-team');
+          }
+        });
+      }
+
+      return teamDiv;
+    };
+
+    const team1 = makeTeamDiv('L');
+    const team2 = makeTeamDiv('R');
+
+    const vs = document.createElement('span');
+    vs.className = 'vs';
+    vs.innerText = '  ';
+
+    teamsDiv.append(team1, vs, team2);
+    wrapper.appendChild(teamsDiv);
+  });
+
+  return wrapper;
+}
+
 function getGenderByName(playerName) {
   const p = schedulerState.allPlayers.find(pl => pl.name === playerName);
   return p ? p.gender : null; // "Male" | "Female"
@@ -531,91 +773,69 @@ function getTeamTypeFromPairs(playerNames) {
 
   return "unknown";
 }
+
 function renderGames(data, index) {
   const wrapper = document.createElement('div');
-
   data.games.forEach((game, gameIndex) => {
-
-    // 🟦 Court card (visual only)
-    const courtCard = document.createElement('div');
-    courtCard.className = 'plcourt-card';
-
-    // 🟨 Court number (UI only)
-    const courtNo = document.createElement('div');
-    courtNo.className = 'court-number';
-    courtNo.innerText = 'Court ' + (game.court ?? (gameIndex + 1));
-    courtCard.appendChild(courtNo);
-
+    // 🟦 Create the main container for the match
     const teamsDiv = document.createElement('div');
     teamsDiv.className = 'teams';
-
+    // Helper → Team letters (A, B, C, D...)
+    const getTeamLetter = (gameIndex, teamSide) => {
+      const teamNumber = gameIndex * 2 + (teamSide === 'L' ? 0 : 1);
+      return String.fromCharCode(65 + teamNumber);
+    };
     const makeTeamDiv = (teamSide) => {
       const teamDiv = document.createElement('div');
       teamDiv.className = 'team';
       teamDiv.dataset.teamSide = teamSide;
       teamDiv.dataset.gameIndex = gameIndex;
-
-      const players = teamSide === 'L' ? game.pair1 : game.pair2;
-      players.forEach((p, i) => {
-        teamDiv.appendChild(
-          makePlayerButton(p, teamSide, gameIndex, i, data, index)
-        );
+      // 🔁 Swap icon
+      const swapIcon = document.createElement('div');
+      swapIcon.className = 'swap-icon';
+      swapIcon.innerHTML = '🔁';
+      teamDiv.appendChild(swapIcon);
+      // 👥 Add player buttons
+      const teamPairs = teamSide === 'L' ? game.pair1 : game.pair2;
+      teamPairs.forEach((p, i) => {
+        teamDiv.appendChild(makePlayerButton(p, teamSide, gameIndex, i, data, index));
       });
-
-      // ✅ Direct tap swap ONLY for latest round
+      // ✅ Swap logic (only for latest round)
       const isLatestRound = index === allRounds.length - 1;
       if (isLatestRound) {
-        teamDiv.addEventListener('click', (e) => {
+        swapIcon.addEventListener('click', (e) => {
           e.stopPropagation();
           e.preventDefault();
-
           if (window.selectedTeam) {
             const src = window.selectedTeam;
-
-            // prevent same-team double tap
-            if (
-              src.gameIndex !== gameIndex ||
-              src.teamSide !== teamSide
-            ) {
-              handleTeamSwapAcrossCourts(
-                src,
-                { teamSide, gameIndex },
-                data,
-                index
-              );
+            if (src.gameIndex !== gameIndex) {
+              handleTeamSwapAcrossCourts(src, { teamSide, gameIndex }, data, index);
             }
-
-            // clear selection
             window.selectedTeam = null;
             document
               .querySelectorAll('.selected-team')
-              .forEach(el => el.classList.remove('selected-team'));
+              .forEach(b => b.classList.remove('selected-team'));
           } else {
-            // select first team
             window.selectedTeam = { teamSide, gameIndex };
             teamDiv.classList.add('selected-team');
           }
         });
       }
-
       return teamDiv;
     };
-
-    const teamL = makeTeamDiv('L');
-    const teamR = makeTeamDiv('R');
-
+    // 🟢 Create left & right sides
+    const team1 = makeTeamDiv('L');
+    const team2 = makeTeamDiv('R');
+    // ⚪ VS label
     const vs = document.createElement('span');
     vs.className = 'vs';
     vs.innerText = '  ';
-
-    teamsDiv.append(teamL, vs, teamR);
-    courtCard.appendChild(teamsDiv);
-    wrapper.appendChild(courtCard);
+    // Add everything to container
+    teamsDiv.append(team1, vs, team2);
+    wrapper.appendChild(teamsDiv);
   });
-
   return wrapper;
 }
-
 
 function makePlayerButton(name, teamSide, gameIndex, playerIndex, data, index) {
   const btn = document.createElement('button');
@@ -694,92 +914,7 @@ if (IS_MIXED_SESSION && player?.gender) {
   };
 
   btn.addEventListener('click', handleTap);
-  //btn.addEventListener('touchstart', handleTap);
-
-  return btn;
-}
-
-function testmakePlayerButton(name, teamSide, gameIndex, playerIndex, data, index) {
-  const btn = document.createElement('button');
-
-  // Determine if gender icons should be shown
-  const showGender = IS_MIXED_SESSION;
-
-  // Get player object
-  const baseName = name.split('#')[0];
-  const player = schedulerState.allPlayers.find(p => p.name === baseName);
-  
-  btn.textContent = name;
-  btn.className = teamSide === 'L' ? 'Lplayer-btn' : 'Rplayer-btn';
-  
-
-  /* ───────── COLOR OVERRIDE ───────── */
-if (IS_MIXED_SESSION && player?.gender) {
-  const genderBtn = document.createElement('span');
-  genderBtn.className =
-    'gender-btn ' +
-    (player.gender === 'Female' ? 'female' : 'male');
-
-  genderBtn.textContent =
-   //player.gender === 'Female' ? '👩' : '👨';
-   player.gender === 'Female' ? "🙎‍♀️" : "👨‍💼" ;
-    
-  btn.prepend(genderBtn);
-}
-
-  /* ───────────────────────────────── */
-
-  const isLatestRound = index === allRounds.length - 1;
-  if (!isLatestRound) return btn;
-
-  const handleTap = (e) => {
-    e.preventDefault();
-
-    if (window.selectedPlayer) {
-      const src = window.selectedPlayer;
-
-      if (src.from === 'rest') {
-        handleDropRestToTeam(
-          e,
-          teamSide,
-          gameIndex,
-          playerIndex,
-          data,
-          index,
-          src.playerName
-        );
-      } else {
-        handleDropBetweenTeams(
-          e,
-          teamSide,
-          gameIndex,
-          playerIndex,
-          data,
-          index,
-          src
-        );
-      }
-
-      window.selectedPlayer = null;
-      document.querySelectorAll('.selected')
-        .forEach(b => b.classList.remove('selected'));
-    } else {
-      window.selectedPlayer = {
-        playerName: name,
-        teamSide,
-        gameIndex,
-        playerIndex,
-        from: 'team'
-      };
-      btn.classList.add('selected');
-    }
-  };
-
-
-
- 
-  btn.addEventListener('click', handleTap);
-  //btn.addEventListener('touchstart', handleTap);
+  btn.addEventListener('touchstart', handleTap);
 
   return btn;
 }
@@ -856,59 +991,39 @@ function makeRestButton(player, data, index) {
   };
 
   btn.addEventListener('click', handleTap);
-  //btn.addEventListener('touchstart', handleTap);
+  btn.addEventListener('touchstart', handleTap);
 
   return btn;
 }
+
 
 function makeTeamButton(label, teamSide, gameIndex, data, index) {
   const btn = document.createElement('button');
   btn.className = 'team-btn';
-  btn.innerText = label;
-
+  btn.innerText = label; // Visible label stays simple (Team L / Team R)
+  // Store internal unique info in dataset
   btn.dataset.gameIndex = gameIndex;
   btn.dataset.teamSide = teamSide;
-
-  // ❗ SAFETY: allRounds may not exist yet
-  if (!window.allRounds || index !== allRounds.length - 1) {
-    return btn;
-  }
-
+  const isLatestRound = index === allRounds.length - 1;
+  if (!isLatestRound) return btn;
   btn.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    const teamDiv = btn.closest('.team');
-    if (!teamDiv) return; // 🔑 prevents crash
-
-    // Clear previous selections
-    document.querySelectorAll('.team.selected-team')
-      .forEach(t => t.classList.remove('selected-team'));
-
-    document.querySelectorAll('.selected')
-      .forEach(p => p.classList.remove('selected'));
-
     if (window.selectedTeam) {
       const src = window.selectedTeam;
-
       if (src.gameIndex !== gameIndex) {
-        handleTeamSwapAcrossCourts(
-          src,
-          { teamSide, gameIndex },
-          data,
-          index
-        );
+        handleTeamSwapAcrossCourts(src, { teamSide, gameIndex }, data, index);
       }
-
       window.selectedTeam = null;
+      document.querySelectorAll('.selected-team').forEach(b => b.classList.remove('selected-team'));
     } else {
+      // Store internal info for selection
       window.selectedTeam = { teamSide, gameIndex };
-      teamDiv.classList.add('selected-team'); // ✅ SAFE
+      btn.classList.add('selected-team');
     }
   });
-
   return btn;
 }
+
 function handleDropRestToTeam(
   e, teamSide, gameIndex, playerIndex, data, roundIndex, movingPlayer = null
 ) {
@@ -1093,3 +1208,5 @@ lockBtn.addEventListener('click', () => {
   // Update icon text
   lockBtn.textContent = interactionLocked ? '🔒' : '🔓';
 });
+
+
