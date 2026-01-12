@@ -45,7 +45,11 @@ const translations = {
     dark: "Dark",
     export: "Export",
     exporthtml: "📄 Export Summary",
-    help: "Help"
+    help: "Help",
+    confirmResetAll: "Do you want to reset everything?",
+    confirmResetGames: "Do you want to reset games only?",
+    endRoundsConfirm: "Do you want to end the rounds?",
+    yes: "Yes"
    
   },
   
@@ -94,6 +98,11 @@ const translations = {
     dark: "ダーク",
     export: "エクスポート",
     exporthtml: "📄 概要出力",
+    
+    confirmResetAll: "すべてをリセットしますか？",
+    confirmResetGames: "試合のみをリセットしますか？",
+    endRoundsConfirm: "ラウンドを終了しますか？",
+    yes: "はい",
     help: "ヘルプ"
 
   },
@@ -143,6 +152,11 @@ const translations = {
   dark: "다크",
   export: "내보내기",
   exporthtml: "📄 요약 내보내기",
+  
+  confirmResetAll: "모든 데이터를 초기화하시겠습니까?",
+  confirmResetGames: "경기만 초기화하시겠습니까?",
+  endRoundsConfirm: "라운드를 종료하시겠습니까?",
+  yes: "확인",
   help: "도움말"
 },
   
@@ -191,6 +205,11 @@ vi: {
   dark: "Tối",
   export: "Xuất",
   exporthtml: "📄 Xuất bản tóm tắt",
+  
+  confirmResetAll: "Bạn có muốn đặt lại tất cả không?",
+  confirmResetGames: "Bạn có muốn đặt lại trận đấu không?",
+  endRoundsConfirm: "Bạn có muốn kết thúc các vòng không?",
+  yes: "Có",
   help: "Trợ giúp"
 },
   
@@ -239,6 +258,11 @@ zh: {
   dark: "深色",
   export: "导出",
   exporthtml: "📄 导出汇总",
+  
+  confirmResetAll: "确定要重置所有内容吗？",
+  confirmResetGames: "确定只重置比赛吗？",
+  endRoundsConfirm: "确定要结束回合吗？",
+  yes: "确定",
   help: "帮助"
 }
   
