@@ -5,17 +5,26 @@ function t(key) {
 }
 
 function showConfirm(messageKey, action) {
-  document.getElementById("confirmTitle").textContent = t(messageKey);
-  document.getElementById("confirmCancel").textContent = t("cancel");
-  document.getElementById("confirmYes").textContent = t("yes");
+  const overlay = document.getElementById("confirmOverlay");
+  const title   = document.getElementById("confirmTitle");
+  const yesBtn  = document.getElementById("confirmYes");
+  const cancelBtn = document.getElementById("confirmCancel");
+
+  title.textContent = t(messageKey);
+  yesBtn.textContent = t("yes");
+  cancelBtn.textContent = t("cancel");
 
   pendingAction = action;
-  document.getElementById("confirmOverlay").classList.remove("hidden");
+  overlay.classList.remove("hidden");
 
-  document.getElementById("confirmYes").onclick = () => {
+  // ✅ YES button
+  yesBtn.onclick = () => {
     pendingAction && pendingAction();
     closeConfirm();
   };
+
+  // ✅ CANCEL button (THIS enables it)
+  cancelBtn.onclick = closeConfirm;
 }
 
 function closeConfirm() {
